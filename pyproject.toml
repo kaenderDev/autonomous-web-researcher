@@ -10,14 +10,21 @@ readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
 dependencies = [
+    # LLM
     "anthropic>=0.40.0",
+    # HTTP client (async)
     "httpx>=0.27.0",
+    # Data validation & settings
     "pydantic>=2.7.0",
     "pydantic-settings>=2.3.0",
+    # HTML parsing
     "beautifulsoup4>=4.12.0",
     "lxml>=5.2.0",
+    # Resilience
     "tenacity>=8.3.0",
+    # Terminal UI
     "rich>=13.7.0",
+    # CLI
     "typer>=0.12.0",
 ]
 
@@ -27,34 +34,75 @@ dev = [
     "pytest-asyncio>=0.23.0",
     "pytest-httpx>=0.30.0",
     "pytest-cov>=5.0.0",
+    "pytest-mock>=3.14.0",
     "ruff>=0.5.0",
     "mypy>=1.10.0",
 ]
 
 [project.scripts]
+# Installed entry point: `research-agent --topic "..."`
 research-agent = "app.main:app"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["app*"]
 
-# --- Ruff (Linter + Formatter) ---
+# ---------------------------------------------------------------------------
+# Ruff — linter + formatter
+# ---------------------------------------------------------------------------
 [tool.ruff]
-line-length = 88
+line-length = 100
 target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "ANN", "B", "SIM"]
-ignore = ["ANN101", "ANN102"]
+ignore = [
+    "ANN101",   # missing type annotation for self
+    "ANN102",   # missing type annotation for cls
+    "ANN401",   # dynamically typed expressions (Any)
+]
 
-# --- Mypy (Static Type Checker) ---
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN"]   # relax annotations in test files
+
+# ---------------------------------------------------------------------------
+# Mypy — static type checker
+# ---------------------------------------------------------------------------
 [tool.mypy]
 python_version = "3.10"
 strict = true
 ignore_missing_imports = true
+exclude = ["tests/"]
 
-# --- Pytest ---
+# ---------------------------------------------------------------------------
+# Pytest
+# ---------------------------------------------------------------------------
 [tool.pytest.ini_options]
+# asyncio_mode = "auto" means every async test function is treated as an
+# async test without needing @pytest.mark.asyncio on each one.
+# The marker is kept on individual tests for explicitness, but "auto"
+# removes the need to also register the mark.
 asyncio_mode = "auto"
 testpaths = ["tests"]
-addopts = "--cov=app --cov-report=term-missing -v"
+addopts = [
+    "--cov=app",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "-v",
+    "--tb=short",
+]
+filterwarnings = [
+    # Surface our own LowYieldWarning in test output
+    "always::app.core.exceptions.LowYieldWarning",
+]
+
+# ---------------------------------------------------------------------------
+# Coverage
+# ---------------------------------------------------------------------------
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/__main__.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true

@@ -1,0 +1,35 @@
+# ==============================================================================
+#  ResearchAgent Pro — Pinned runtime requirements
+#
+#  Generated from pyproject.toml [project.dependencies].
+#  For development extras (pytest, ruff, mypy) install with:
+#
+#      pip install -e ".[dev]"
+#
+#  For production:
+#
+#      pip install -r requirements.txt
+# ==============================================================================
+
+# LLM
+anthropic>=0.40.0
+
+# Async HTTP client
+httpx>=0.27.0
+
+# Data validation & environment settings
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
+
+# HTML parsing
+beautifulsoup4>=4.12.0
+lxml>=5.2.0
+
+# Retry / resilience
+tenacity>=8.3.0
+
+# Terminal UI (progress spinner, rich logging, panels)
+rich>=13.7.0
+
+# CLI argument parsing
+typer>=0.12.0
